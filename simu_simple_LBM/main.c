@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <math.h>
+#include <time.h>
 #include <stdint.h>
 #include "lbm_config.h"
 #include "lbm_struct.h"
@@ -118,6 +119,8 @@ void save_frame(FILE * fp,const Mesh * mesh)
 /*******************  FUNCTION  *********************/
 int main(int argc, char * argv[])
 {
+        // timer
+        clock_t tic;
 	//vars
 	Mesh mesh;
 	Mesh temp;
@@ -127,7 +130,8 @@ int main(int argc, char * argv[])
 	int i, rank, comm_size;
 	FILE * fp = NULL;
 	const char * config_filename = NULL;
-
+        
+        tic = clock();
 	//init MPI and get current rank and commuincator size.
 	MPI_Init( &argc, &argv );
 	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
@@ -211,6 +215,11 @@ int main(int argc, char * argv[])
 
 	//close MPI
 	MPI_Finalize();
+
+        tic = clock() - tic;
+        double duration = ((double)tic)/CLOCKS_PER_SEC;
+
+        printf("\nTime taken for simulation : %lf s \n",duration);
 
 	return EXIT_SUCCESS;
 }
