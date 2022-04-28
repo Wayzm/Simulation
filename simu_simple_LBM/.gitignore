@@ -1,4 +1,4 @@
-.o
-.raw
+*.o
+*.raw
 lbm
 display
