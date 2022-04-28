@@ -16,8 +16,7 @@ void Mesh_init( Mesh * mesh, int width,  int height )
 	mesh->height = height;
 
 	//alloc cells memory
-	//mesh->cells = malloc( width * height  * DIRECTIONS * sizeof( double ) );
-	mesh->cells = NULL;
+	mesh->cells = malloc( width * height  * DIRECTIONS * sizeof( double ) );
 
 	//errors
 	/*if( mesh->cells == NULL )
@@ -31,13 +30,8 @@ void Mesh_init( Mesh * mesh, int width,  int height )
 /** Libère la mémoire d'un maillage. **/
 void Mesh_release( Mesh *mesh )
 {
-	//reset values
-	mesh->width = 0;
-	mesh->height = 0;
-
 	//free memory
-	free( mesh->cells );
-	mesh->cells = NULL;
+	free( mesh->cells);
 }
 
 /*******************  FUNCTION  *********************/
@@ -49,32 +43,15 @@ void Mesh_release( Mesh *mesh )
 **/
 void lbm_mesh_type_t_init( lbm_mesh_type_t * meshtype, int width,  int height )
 {
-	//setup params
-	meshtype->width = width;
-	meshtype->height = height;
-
 	//alloc cells memory
 	meshtype->types = malloc( (width + 2) * height * sizeof( lbm_cell_type_t ) );
-
-	//errors
-	if( meshtype->types == NULL )
-	{
-		perror( "malloc" );
-		abort();
-	}
 }
 
 /*******************  FUNCTION  *********************/
 /** Libère la mémoire d'un maillage. **/
 void lbm_mesh_type_t_release( lbm_mesh_type_t * mesh )
 {
-	//reset values
-	mesh->width = 0;
-	mesh->height = 0;
-
-	//free memory
 	free( mesh->types );
-	mesh->types = NULL;
 }
 
 /*******************  FUNCTION  *********************/
