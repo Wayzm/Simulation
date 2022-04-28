@@ -115,7 +115,7 @@ void lbm_comm_init( lbm_comm_t * mesh_comm, int rank, int comm_size, int width, 
 	//if more than 1 on y, need transmission buffer
 	if (nb_y > 1)
 	{
-		mesh_comm->buffer = malloc(sizeof(double) * DIRECTIONS * width / nb_x);
+		mesh_comm->buffer = calloc(DIRECTIONS * width / nb_x, sizeof(double));
 	} else {
 		mesh_comm->buffer = NULL;
 	}

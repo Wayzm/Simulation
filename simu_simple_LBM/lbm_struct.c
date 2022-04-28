@@ -16,7 +16,7 @@ void Mesh_init( Mesh * mesh, int width,  int height )
 	mesh->height = height;
 
 	//alloc cells memory
-	mesh->cells = malloc( width * height  * DIRECTIONS * sizeof( double ) );
+	mesh->cells = calloc( width * height  * DIRECTIONS, sizeof( double ) );
 
 	//errors
 	/*if( mesh->cells == NULL )
@@ -44,7 +44,7 @@ void Mesh_release( Mesh *mesh )
 void lbm_mesh_type_t_init( lbm_mesh_type_t * meshtype, int width,  int height )
 {
 	//alloc cells memory
-	meshtype->types = malloc( (width + 2) * height * sizeof( lbm_cell_type_t ) );
+	meshtype->types = calloc( width  * height , sizeof( lbm_cell_type_t ) );
 }
 
 /*******************  FUNCTION  *********************/
