@@ -3,3 +3,5 @@
 lbm
 display
 *.gif
+*.data
+*.old
