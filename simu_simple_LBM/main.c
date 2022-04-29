@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <math.h>
-#include <time.h>
 #include <stdint.h>
+#include <time.h>
 #include "lbm_config.h"
 #include "lbm_struct.h"
 #include "lbm_phys.h"
@@ -119,8 +119,6 @@ void save_frame(FILE * fp,const Mesh * mesh)
 /*******************  FUNCTION  *********************/
 int main(int argc, char * argv[])
 {
-        // timer
-        clock_t tic;
 	//vars
 	Mesh mesh;
 	Mesh temp;
@@ -130,8 +128,7 @@ int main(int argc, char * argv[])
 	int i, rank, comm_size;
 	FILE * fp = NULL;
 	const char * config_filename = NULL;
-        
-        tic = clock();
+        clock_t timer = clock();
 
 	//init MPI and get current rank and commuincator size.
 	MPI_Init( &argc, &argv );
@@ -169,33 +166,33 @@ int main(int argc, char * argv[])
 		save_frame_all_domain(fp, &mesh, &temp_render );
 
 	//barrier to wait all before start
-	//MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	//time steps
-	for ( i = 0 ; i < ITERATIONS ; i++ )
+	for ( i = 1 ; i < ITERATIONS ; i++ )
 	{
 		//print progress
 		if( rank == RANK_MASTER )
-			printf("Progress [%5d / %5d]\r",i+1,ITERATIONS);
+			printf("Progress [%5d / %5d]\r",i,ITERATIONS);
 
 		//compute special actions (border, obstacle...)
 		special_cells( &mesh, &mesh_type, &mesh_comm);
 
 		//need to wait all before doing next step
-		//MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
 
 		//compute collision term
 		collision( &temp, &mesh);
 
 		//need to wait all before doing next step
-		//MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
 
 		//propagate values from node to neighboors
 		lbm_comm_ghost_exchange( &mesh_comm, &temp );
 		propagation( &mesh, &temp);
 
 		//need to wait all before doing next step
-		//MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
 
 		//save step
 		if ( i % WRITE_STEP_INTERVAL == 0 && lbm_gbl_config.output_filename != NULL )
@@ -205,8 +202,12 @@ int main(int argc, char * argv[])
 	if( rank == RANK_MASTER && fp != NULL)
 	{
 		close_file(fp);
+                timer = clock() - timer;
+                double duration = ((double)timer/CLOCKS_PER_SEC);
+                printf("\n Duration for the simulation is : %lf s", duration);
 	}
-        else {
+        else 
+        {
           MPI_Barrier(MPI_COMM_WORLD);
         }
 
@@ -219,11 +220,6 @@ int main(int argc, char * argv[])
 
 	//close MPI
 	MPI_Finalize();
-
-        tic = clock() - tic;
-        double duration = ((double)tic)/CLOCKS_PER_SEC;
-
-        printf("\nTime taken for simulation : %lf s \n",duration);
 
 	return EXIT_SUCCESS;
 }
