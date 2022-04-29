@@ -35,7 +35,6 @@ void Mesh_release( Mesh *mesh )
 
 	//free memory
 	free( mesh->cells );
-	mesh->cells = NULL;
 }
 
 /*******************  FUNCTION  *********************/
@@ -54,12 +53,6 @@ void lbm_mesh_type_t_init( lbm_mesh_type_t * meshtype, int width,  int height )
 	//alloc cells memory
 	meshtype->types = malloc( (width + 2) * height * sizeof( lbm_cell_type_t ) );
 
-	//errors
-	if( meshtype->types == NULL )
-	{
-		perror( "malloc" );
-		abort();
-	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -72,7 +65,6 @@ void lbm_mesh_type_t_release( lbm_mesh_type_t * mesh )
 
 	//free memory
 	free( mesh->types );
-	mesh->types = NULL;
 }
 
 /*******************  FUNCTION  *********************/

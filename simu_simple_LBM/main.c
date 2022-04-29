@@ -204,7 +204,7 @@ int main(int argc, char * argv[])
 		close_file(fp);
                 timer = clock() - timer;
                 double duration = ((double)timer/CLOCKS_PER_SEC);
-                printf("\n Duration for the simulation is : %lf s", duration);
+                printf("\n Duration for the simulation is : %lf s\n", duration);
 	}
         else 
         {

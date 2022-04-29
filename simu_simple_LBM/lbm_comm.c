@@ -83,9 +83,11 @@ void lbm_comm_init( lbm_comm_t * mesh_comm, int rank, int comm_size, int width, 
 
 	//check
 	assert(nb_x * nb_y == comm_size);
-	if (height % nb_y != 0)
-		fatal("Can't get a 2D cut for current problem size and number of processes.");
-
+	if (height % nb_y != 0 || width % nb_x != 0)
+        {	
+          printf("Can't get a 2D cut for current problem size and number of processes.\n");
+          exit(0);
+        }
 	//calc current rank position (ID)
 	rank_x = rank % nb_x;
 	rank_y = rank / nb_x;
