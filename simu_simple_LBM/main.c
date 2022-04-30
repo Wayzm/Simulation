@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include <time.h>
+#include <sys/time.h>
 #include "lbm_config.h"
 #include "lbm_struct.h"
 #include "lbm_phys.h"
@@ -128,7 +128,6 @@ int main(int argc, char * argv[])
 	int i, rank, comm_size;
 	FILE * fp = NULL;
 	const char * config_filename = NULL;
-        clock_t timer = clock();
 
 	//init MPI and get current rank and commuincator size.
 	MPI_Init( &argc, &argv );
@@ -173,7 +172,7 @@ int main(int argc, char * argv[])
 	{
 		//print progress
 		if( rank == RANK_MASTER )
-			printf("Progress [%5d / %5d]\r",i,ITERATIONS);
+			printf("Progress [%5d / %5d]\r",i+1,ITERATIONS);
 
 		//compute special actions (border, obstacle...)
 		special_cells( &mesh, &mesh_type, &mesh_comm);
@@ -202,9 +201,6 @@ int main(int argc, char * argv[])
 	if( rank == RANK_MASTER && fp != NULL)
 	{
 		close_file(fp);
-                timer = clock() - timer;
-                double duration = ((double)timer/CLOCKS_PER_SEC);
-                printf("\n Duration for the simulation is : %lf s\n", duration);
 	}
         else 
         {

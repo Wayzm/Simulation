@@ -180,7 +180,6 @@ void compute_bounce_back(lbm_mesh_cell_t cell)
 	//compute bounce back
 	for ( k = 0 ; k < DIRECTIONS ; k++)
 		tmp[k] = cell[opposite_of[k]];
-
 	//compute bounce back
 	for ( k = 0 ; k < DIRECTIONS ; k++)
 		cell[k] = tmp[k];
@@ -277,13 +276,12 @@ void compute_outflow_zou_he_const_density(lbm_mesh_cell_t cell)
 **/
 void special_cells(Mesh * mesh, lbm_mesh_type_t * mesh_type, const lbm_comm_t * mesh_comm)
 {
-	//vars
-	int i,j;
 
 	//loop on all inner cells
-	for( i = 1 ; i < mesh->width - 1 ; i++ )
+        #pragma omp parallel for schedule(static)
+	for( int i = 1 ; i < mesh->width - 1 ; i++ )
 	{
-		for( j = 1 ; j < mesh->height - 1 ; j++)
+		for( int j = 1 ; j < mesh->height - 1 ; j++)
 		{
 			switch (*( lbm_cell_type_t_get_cell( mesh_type , i, j) ))
 			{
@@ -318,7 +316,7 @@ void collision(Mesh * mesh_out,const Mesh * mesh_in)
         #pragma omp parallel
         {
 	  //loop on all inner cells
-          #pragma omp for nowait schedule(static) collapse(2) 
+          #pragma omp for nowait schedule(static) 
 	  for(int j = 1 ; j < mesh_in->width - 1 ; j++)
           {
 		for( int i = 1 ; i < mesh_in->height - 1 ; i++ )
@@ -341,10 +339,10 @@ void propagation(Mesh * mesh_out,const Mesh * mesh_in)
 	int ii,jj;
 
 	//loop on all cells
-        #pragma omp parallel
+       #pragma omp parallel
         {
 
-          #pragma omp for nowait schedule(static) private(ii,jj) collapse(2)
+          #pragma omp for nowait schedule(static) private(ii,jj)
 	  for ( int i = 0 ; i < mesh_out->width ; i++)
 	  {
 	  	for (int  j = 0 ; j < mesh_out->height; j++)
@@ -357,7 +355,7 @@ void propagation(Mesh * mesh_out,const Mesh * mesh_in)
 				jj = (j + direction_matrix[k][1]);
 				//propagate to neighboor nodes
 				if ((ii >= 0 && ii < mesh_out->width) && (jj >= 0 && jj < mesh_out->height))
-					Mesh_get_cell(mesh_out, ii, jj)[k] = Mesh_get_cell(mesh_in, i, j)[k];
+				      Mesh_get_cell(mesh_out, ii, jj)[k] = Mesh_get_cell(mesh_in, i, j)[k];
 			}
 		}
 	  }
