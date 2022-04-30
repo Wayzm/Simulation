@@ -126,6 +126,10 @@ static inline lbm_mesh_cell_t Mesh_get_col( const Mesh * mesh, int x )
 	return &mesh->cells[ x * mesh->height * DIRECTIONS + DIRECTIONS];
 }
 
+static inline lbm_mesh_cell_t Mesh_get_line (const Mesh *mesh, int x )
+{
+  return &mesh->cells[x * mesh->width * DIRECTIONS + DIRECTIONS];
+}
 /*******************  FUNCTION  *********************/
 /**
  * Fonction à utiliser pour récupérer un pointeur sur le type d'une cellule du maillage en fonction de ses coordonnées.
