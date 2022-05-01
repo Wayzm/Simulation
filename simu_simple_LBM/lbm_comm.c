@@ -225,7 +225,10 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
 	switch (comm_type)
 	{
 		case COMM_SEND:
-                        #pragma omp parallel for schedule(static)
+                        #pragma omp parallel
+                        {
+                        omp_set_num_threads(3);
+                        #pragma omp for schedule(dynamic)
 			for ( int x = 1 ; x < mesh_to_process->width - 2 ; x++)
                         {
                           for(int k = 0; k < DIRECTIONS ; k++)
@@ -233,13 +236,18 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
                             verticalBuffer[(x - 1) * DIRECTIONS + k] = Mesh_get_cell(mesh_to_process,x,y)[k];
                           }
                         }
+                        }
                         MPI_Send(verticalBuffer, size , MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD);
 
                         free(verticalBuffer);
 			break;
 		case COMM_RECV:
 			MPI_Recv(verticalBuffer, size , MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD,&status);
-                        #pragma omp parallel for schedule(static)
+                        
+                        #pragma omp parallel 
+                        {
+                        omp_set_num_threads(3);
+                        #pragma omp parallel for schedule(dynamic)
                         for(int x = 1 ; x < mesh_to_process->width -2 ; x++)
                         {
                           for(int k = 0 ; k < DIRECTIONS ; k++)
@@ -247,7 +255,8 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
                             Mesh_get_cell(mesh_to_process,x,y)[k] = verticalBuffer[(x - 1)* DIRECTIONS +k];
                           }
                         }
-
+                        }
+      
 			break;
 		default:
 			fatal("Unknown type of communication.");

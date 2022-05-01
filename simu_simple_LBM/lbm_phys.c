@@ -278,7 +278,10 @@ void special_cells(Mesh * mesh, lbm_mesh_type_t * mesh_type, const lbm_comm_t * 
 {
 
 	//loop on all inner cells
-        #pragma omp parallel for schedule(static)
+        #pragma omp parallel
+        {
+        omp_set_num_threads(3);
+        #pragma omp for schedule(dynamic) collapse(2)
 	for( int i = 1 ; i < mesh->width - 1 ; i++ )
 	{
 		for( int j = 1 ; j < mesh->height - 1 ; j++)
@@ -299,6 +302,7 @@ void special_cells(Mesh * mesh, lbm_mesh_type_t * mesh_type, const lbm_comm_t * 
 			}
 		}
 	}
+        }
 }
 
 /*******************  FUNCTION  *********************/
@@ -315,8 +319,9 @@ void collision(Mesh * mesh_out,const Mesh * mesh_in)
         
         #pragma omp parallel
         {
+          omp_set_num_threads(3);
 	  //loop on all inner cells
-          #pragma omp for nowait schedule(static) 
+          #pragma omp for nowait schedule(dynamic) collapse(2)
 	  for(int j = 1 ; j < mesh_in->width - 1 ; j++)
           {
 		for( int i = 1 ; i < mesh_in->height - 1 ; i++ )
@@ -341,8 +346,8 @@ void propagation(Mesh * mesh_out,const Mesh * mesh_in)
 	//loop on all cells
        #pragma omp parallel
         {
-
-          #pragma omp for nowait schedule(static) private(ii,jj)
+          omp_set_num_threads(3);
+          #pragma omp for nowait schedule(dynamic) private(ii,jj) collapse(2)
 	  for ( int i = 0 ; i < mesh_out->width ; i++)
 	  {
 	  	for (int  j = 0 ; j < mesh_out->height; j++)
