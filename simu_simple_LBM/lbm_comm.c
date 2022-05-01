@@ -228,7 +228,7 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
                         #pragma omp parallel
                         {
                         omp_set_num_threads(3);
-                        #pragma omp for schedule(dynamic)
+                        #pragma omp for schedule(static)
 			for ( int x = 1 ; x < mesh_to_process->width - 2 ; x++)
                         {
                           for(int k = 0; k < DIRECTIONS ; k++)
@@ -247,7 +247,7 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
                         #pragma omp parallel 
                         {
                         omp_set_num_threads(3);
-                        #pragma omp parallel for schedule(dynamic)
+                        #pragma omp parallel for schedule(static)
                         for(int x = 1 ; x < mesh_to_process->width -2 ; x++)
                         {
                           for(int k = 0 ; k < DIRECTIONS ; k++)
@@ -256,6 +256,7 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
                           }
                         }
                         }
+                        free(verticalBuffer);
       
 			break;
 		default:
