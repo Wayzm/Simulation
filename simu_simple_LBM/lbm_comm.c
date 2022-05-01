@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "lbm_comm.h"
-
+#include <omp.h>
 /*******************  FUNCTION  *********************/
 int lbm_helper_pgcd(int a, int b)
 {
@@ -201,6 +201,7 @@ void lbm_comm_sync_ghosts_diagonal( Mesh *mesh_to_process, lbm_comm_type_t comm_
 		default:
 			fatal("Unknown type of communication.");
 	}
+
 }
 
 
@@ -214,8 +215,9 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
 {
 	//vars
 	MPI_Status status;
-	int x;
+        int size = (mesh_to_process->width - 2) * DIRECTIONS;
 
+        double *verticalBuffer = malloc(sizeof(double) * size);
 	//if target is -1, no comm
 	if (target_rank == -1)
 		return;
@@ -223,12 +225,29 @@ void lbm_comm_sync_ghosts_vertical( Mesh *mesh_to_process, lbm_comm_type_t comm_
 	switch (comm_type)
 	{
 		case COMM_SEND:
-			for ( x = 1 ; x < mesh_to_process->width - 2 ; x++)
-					MPI_Send( Mesh_get_cell(mesh_to_process, x, y), DIRECTIONS, MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD);
+                        #pragma omp parallel for schedule(static)
+			for ( int x = 1 ; x < mesh_to_process->width - 2 ; x++)
+                        {
+                          for(int k = 0; k < DIRECTIONS ; k++)
+                          {
+                            verticalBuffer[(x - 1) * DIRECTIONS + k] = Mesh_get_cell(mesh_to_process,x,y)[k];
+                          }
+                        }
+                        MPI_Send(verticalBuffer, size , MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD);
+
+                        free(verticalBuffer);
 			break;
 		case COMM_RECV:
-			for ( x = 1 ; x < mesh_to_process->width - 2 ; x++)
-					MPI_Recv( Mesh_get_cell(mesh_to_process, x, y), DIRECTIONS, MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD,&status);
+			MPI_Recv(verticalBuffer, size , MPI_DOUBLE, target_rank, 0, MPI_COMM_WORLD,&status);
+                        #pragma omp parallel for schedule(static)
+                        for(int x = 1 ; x < mesh_to_process->width -2 ; x++)
+                        {
+                          for(int k = 0 ; k < DIRECTIONS ; k++)
+                          {
+                            Mesh_get_cell(mesh_to_process,x,y)[k] = verticalBuffer[(x - 1)* DIRECTIONS +k];
+                          }
+                        }
+
 			break;
 		default:
 			fatal("Unknown type of communication.");

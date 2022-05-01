@@ -213,7 +213,6 @@ int main(int argc, char * argv[])
 	Mesh_release( &temp );
 	Mesh_release( &temp_render );
 	lbm_mesh_type_t_release( &mesh_type );
-
 	//close MPI
 	MPI_Finalize();
 
